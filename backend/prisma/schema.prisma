@@ -1,0 +1,180 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  phone     String?
+  avatar    String?
+  role      Role     @default(CLIENTE)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookingsAsClient Booking[]       @relation("ClientBookings")
+  bookingsAsBarber Booking[]       @relation("BarberBookings")
+  reviews          Review[]        @relation("ClientReviews")
+  receivedReviews  Review[]        @relation("BarberReviews")
+  barberSchedule   BarberSchedule?
+  transactions     Transaction[]
+
+  @@map("users")
+}
+
+model Service {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  price       Decimal  @db.Decimal(10, 2)
+  duration    Int // Duração em minutos
+  imageUrl    String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relacionamentos
+  bookings Booking[]
+
+  @@map("services")
+}
+
+model Booking {
+  id        String        @id @default(uuid())
+  date      DateTime // Data e hora do agendamento
+  status    BookingStatus @default(PENDING)
+  notes     String? // Observações do cliente
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  // Relacionamentos
+  clientId String
+  client   User   @relation("ClientBookings", fields: [clientId], references: [id], onDelete: Cascade)
+
+  barberId String
+  barber   User   @relation("BarberBookings", fields: [barberId], references: [id], onDelete: Cascade)
+
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  transaction Transaction?
+  review      Review?
+
+  @@map("bookings")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int // 1 a 5 estrelas
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamentos
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  clientId String
+  client   User   @relation("ClientReviews", fields: [clientId], references: [id], onDelete: Cascade)
+
+  barberId String
+  barber   User   @relation("BarberReviews", fields: [barberId], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
+}
+
+model BarberSchedule {
+  id String @id @default(uuid())
+
+  // Horários da semana
+  mondayStart    String? // "09:00"
+  mondayEnd      String? // "18:00"
+  tuesdayStart   String?
+  tuesdayEnd     String?
+  wednesdayStart String?
+  wednesdayEnd   String?
+  thursdayStart  String?
+  thursdayEnd    String?
+  fridayStart    String?
+  fridayEnd      String?
+  saturdayStart  String?
+  saturdayEnd    String?
+  sundayStart    String?
+  sundayEnd      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamentos
+  barberId String @unique
+  barber   User   @relation(fields: [barberId], references: [id], onDelete: Cascade)
+
+  @@map("barber_schedules")
+}
+
+enum Role {
+  BARBEIRO // Barbeiro com controle total 360°
+  CLIENTE // Cliente que agenda serviços
+}
+
+enum BookingStatus {
+  PENDING // Aguardando confirmação
+  CONFIRMED // Confirmado
+  COMPLETED // Finalizado
+  CANCELLED // Cancelado
+  NO_SHOW // Cliente não compareceu
+}
+
+enum PaymentMethod {
+  CASH // Dinheiro
+  DEBIT_CARD // Cartão de débito
+  CREDIT_CARD // Cartão de crédito
+  PIX // PIX
+}
+
+enum TransactionStatus {
+  PENDING // Pendente
+  PAID // Pago
+  CANCELLED // Cancelado
+}
+
+enum TransactionCategory {
+  SERVICE
+  PRODUCT
+  OTHER
+}
+
+model Transaction {
+  id     String  @id @default(uuid())
+  amount Decimal @db.Decimal(10, 2)
+
+  // Use os Enums aqui em vez de String!
+  category      TransactionCategory?
+  paymentMethod PaymentMethod
+  status        TransactionStatus @default(PENDING)
+
+  // Campos financeiros
+  barberAmount Decimal @db.Decimal(10, 2)
+  shopAmount   Decimal @db.Decimal(10, 2)
+
+  // Relacionamentos
+  barberId String
+  // Adicionei onDelete: Cascade para evitar travar se deletar o usuário teste
+  barber   User   @relation(fields: [barberId], references: [id], onDelete: Cascade)
+
+  bookingId String?  @unique
+  booking   Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  // CORREÇÃO: Apenas uma definição de data
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("transactions")
+}
