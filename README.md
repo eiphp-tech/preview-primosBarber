@@ -8,7 +8,6 @@ Um sistema completo de gerenciamento e agendamentos desenvolvido sob medida para
 
 ## 📸 Preview
 
-_(Espaço reservado para adicionar algumas capturas de tela ou GIFs do projeto.)_
 
 <div align="center">
   <img src="./frontend/public/print_dash.png" alt="Preview da Plataforma" />
