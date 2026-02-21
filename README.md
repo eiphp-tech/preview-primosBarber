@@ -1,4 +1,4 @@
-# 🚀 Barbearia Preview - Sistema de Gestão e Agendamentos
+# 🚀 Preview Barbearia - Sistema de Gestão e Agendamentos
 
 > **Aviso de Confidencialidade:** Este é um repositório de **portfólio**. As informações contidas aqui (como nomes de clientes, logotipos, marcas e dados de contato) são **fictícias** ou foram alteradas para preservar a identidade do cliente real e respeitar acordos de confidencialidade (NDA). O projeto original está em uso contínuo em ambiente de produção.
 
