@@ -14,7 +14,7 @@ Um sistema completo de gerenciamento e agendamentos desenvolvido sob medida para
 </div>
 
 <div align="center">
-  <img src="./frontend/public/print_client.png" alt="Preview da Plataforma" />
+  <img src="./frontend/public/print_home.png" alt="Preview da Plataforma" />
 </div>
 
 ---
